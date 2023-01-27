@@ -1,18 +1,17 @@
-'use strict';
-
-const db = require('../database');
-const plugins = require('../plugins');
-const utils = require('../utils');
+import db from '../database';
+import plugins from '../plugins';
+import utils from '../utils';
 
 const intFields = [
-    'uid', 'pid', 'tid', 'deleted', 'timestamp',
-    'upvotes', 'downvotes', 'deleterUid', 'edited',
-    'replies', 'bookmarks',
+'uid', 'pid', 'tid', 'deleted', 'timestamp',
+'upvotes', 'downvotes', 'deleterUid', 'edited',
+'replies', 'bookmarks',
 ];
 
-module.exports = function (Posts) {
-    Posts.getPostsFields = async function (pids, fields) {
-        if (!Array.isArray(pids) || !pids.length) {
+export default function (Posts: any) {
+    Posts.getPostsFields = async function (pids: any, fields: any) {
+        if (!Array.isArray(pids) || !pids.length) 
+        {
             return [];
         }
         const keys = pids.map(pid => `post:${pid}`);
@@ -25,37 +24,38 @@ module.exports = function (Posts) {
         result.posts.forEach(post => modifyPost(post, fields));
         return result.posts;
     };
-
-    Posts.getPostData = async function (pid) {
+    
+    Posts.getPostData = async function (pid: any) {
         const posts = await Posts.getPostsFields([pid], []);
         return posts && posts.length ? posts[0] : null;
     };
-
-    Posts.getPostsData = async function (pids) {
+    
+    Posts.getPostsData = async function (pids: any) {
         return await Posts.getPostsFields(pids, []);
     };
-
-    Posts.getPostField = async function (pid, field) {
+    
+    Posts.getPostField = async function (pid: any, field: any) {
         const post = await Posts.getPostFields(pid, [field]);
         return post ? post[field] : null;
     };
-
-    Posts.getPostFields = async function (pid, fields) {
+    
+    Posts.getPostFields = async function (pid: any, fields: any) {
         const posts = await Posts.getPostsFields([pid], fields);
         return posts ? posts[0] : null;
     };
-
-    Posts.setPostField = async function (pid, field, value) {
+    
+    Posts.setPostField = async function (pid: any, field: any, value: any) {
         await Posts.setPostFields(pid, { [field]: value });
     };
-
-    Posts.setPostFields = async function (pid, data) {
+    
+    Posts.setPostFields = async function (pid: any, data: any) {
         await db.setObject(`post:${pid}`, data);
         plugins.hooks.fire('action:post.setFields', { data: { ...data, pid } });
     };
-};
+    
+}
 
-function modifyPost(post, fields) {
+function modifyPost(post: any, fields: any) {
     if (post) {
         db.parseIntFields(post, intFields, fields);
         if (post.hasOwnProperty('upvotes') && post.hasOwnProperty('downvotes')) {
